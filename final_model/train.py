@@ -16,8 +16,9 @@ parser = argparse.ArgumentParser(description='Train GatedFusionModel with Hyperp
 parser.add_argument('--lr', type=float, default=0.001, help='Learning Rate')
 parser.add_argument('--hidden_dim', type=int, default=128, help='Hidden Dimension')
 parser.add_argument('--dropout', type=float, default=0.1, help='Dropout Rate')
+parser.add_argument('--weight_decay', type=float, default=0.0, help='Weight Decay (L2 Penalty)')
 parser.add_argument('--epochs', type=int, default=30, help='Number of Epochs')
-parser.add_argument('--batch_size', type=int, default=256, help='Batch Size')
+parser.add_argument('--batch_size', type=int, default=512, help='Batch Size')
 parser.add_argument('--no_static', action='store_true', help='Ablation: Zero out static features')
 parser.add_argument('--no_text', action='store_true', help='Ablation: Zero out text features')
 parser.add_argument('--use_significant_features', action='store_true', help='Experiment: Use only significant features (P < 0.05)')
@@ -28,18 +29,21 @@ parser.add_argument('--output_csv', type=str, default='final_model/experiment_re
 args = parser.parse_args()
 
 # --- Configuration ---
-STATIC_PATH = 'final_model/static_data.csv'
-DYNAMIC_PATH = 'final_model/dynamic_data.csv'
-TEXT_DIR = r'C:\Users\srdyh\Downloads\modernbert_section_group_hierbert_full\modernbert_section_group_hierbert_full.pt'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_PATH = os.path.join(BASE_DIR, 'static_data.csv')
+DYNAMIC_PATH = os.path.join(BASE_DIR, 'dynamic_data.csv')
+TEXT_DIR = os.path.join(BASE_DIR, 'modernbert_section_group_hierbert_full.pt')
+
 BATCH_SIZE = args.batch_size
 EPOCHS = args.epochs
 LR = args.lr
 HIDDEN_DIM = args.hidden_dim
 DROPOUT = args.dropout
+WEIGHT_DECAY = args.weight_decay
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print(f"Running Experiment: {args.experiment_name}")
-print(f"Params: LR={LR}, Hidden={HIDDEN_DIM}, Dropout={DROPOUT}, Epochs={EPOCHS}")
+print(f"Params: LR={LR}, Hidden={HIDDEN_DIM}, Dropout={DROPOUT}, WD={WEIGHT_DECAY}, Epochs={EPOCHS}")
 print(f"Ablation: No Static={args.no_static}, No Text={args.no_text}")
 print(f"Significant Features Only: {args.use_significant_features}")
 print(f"PermFIT Repeats: {args.permfit_repeats}")
@@ -81,7 +85,7 @@ def train_model():
     ).to(DEVICE)
     
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=LR)
+    optimizer = optim.Adam(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
     
     best_val_loss = float('inf')
     best_r2 = -float('inf')
@@ -188,12 +192,12 @@ def train_model():
     with open(args.output_csv, mode='a', newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(['Timestamp', 'Experiment', 'LR', 'Hidden', 'Dropout', 'Epochs', 'No_Static', 'No_Text', 'Best_Val_R2', 'Best_Val_Loss'])
+            writer.writerow(['Timestamp', 'Experiment', 'LR', 'Hidden', 'Dropout', 'Weight_Decay', 'Epochs', 'No_Static', 'No_Text', 'Best_Val_R2', 'Best_Val_Loss'])
         
         writer.writerow([
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             args.experiment_name,
-            LR, HIDDEN_DIM, DROPOUT, EPOCHS,
+            LR, HIDDEN_DIM, DROPOUT, WEIGHT_DECAY, EPOCHS,
             args.no_static, args.no_text,
             best_r2, best_val_loss
         ])
