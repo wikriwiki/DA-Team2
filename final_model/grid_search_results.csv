@@ -1,0 +1,3 @@
+Timestamp,Experiment,LR,Hidden,Dropout,Epochs,No_Static,No_Text,Best_Val_R2,Best_Val_Loss
+2025-12-05 01:32:18,grid_0_lr0.001_h64_d0.1,0.001,64,0.1,30,False,False,0.8833593057984694,0.4628607338175842
+2025-12-05 01:38:06,grid_0_lr0.001_h64_d0.1,0.001,64,0.1,30,False,False,0.8682229050151662,0.5191972973293437

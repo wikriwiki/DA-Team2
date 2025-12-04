@@ -25,9 +25,9 @@ def grid_search():
     for i, (lr, hidden, dropout) in enumerate(combinations):
         exp_name = f"grid_{i}_lr{lr}_h{hidden}_d{dropout}"
         cmd = (
-            f'"{PYTHON_EXEC}" {TRAIN_SCRIPT} '
+            f'"{PYTHON_EXEC}" -u {TRAIN_SCRIPT} '
             f'--lr {lr} --hidden_dim {hidden} --dropout {dropout} '
-            f'--epochs 30 --experiment_name {exp_name} '
+            f'--epochs 10 --experiment_name {exp_name} '
             f'--output_csv {GRID_RESULTS}'
         )
         try:
@@ -62,7 +62,7 @@ def ablation_study(best_params):
     print("--- Running Full Model Analysis (with PermFIT) ---")
     exp_name = "full_model_analysis"
     cmd = (
-        f'"{PYTHON_EXEC}" {TRAIN_SCRIPT} '
+        f'"{PYTHON_EXEC}" -u {TRAIN_SCRIPT} '
         f'--lr {lr} --hidden_dim {hidden} --dropout {dropout} '
         f'--epochs 30 --experiment_name {exp_name} '
         f'--output_csv {ABLATION_RESULTS} '
@@ -84,7 +84,7 @@ def ablation_study(best_params):
     for scenario in scenarios:
         exp_name = f"ablation_{scenario['name']}"
         cmd = (
-            f'"{PYTHON_EXEC}" {TRAIN_SCRIPT} '
+            f'"{PYTHON_EXEC}" -u {TRAIN_SCRIPT} '
             f'--lr {lr} --hidden_dim {hidden} --dropout {dropout} '
             f'--epochs 30 --experiment_name {exp_name} '
             f'--output_csv {ABLATION_RESULTS} '
@@ -99,7 +99,7 @@ def ablation_study(best_params):
     print("--- Running Significant Features Only Experiment ---")
     exp_name = "significant_features_only"
     cmd = (
-        f'"{PYTHON_EXEC}" {TRAIN_SCRIPT} '
+        f'"{PYTHON_EXEC}" -u {TRAIN_SCRIPT} '
         f'--lr {lr} --hidden_dim {hidden} --dropout {dropout} '
         f'--epochs 30 --experiment_name {exp_name} '
         f'--output_csv {ABLATION_RESULTS} '
